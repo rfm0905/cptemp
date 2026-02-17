@@ -73,13 +73,16 @@ def resolve_temppath(tempstr: str) -> Path:
     temppath: Path = Path(tempstr)
     isabs: bool = temppath.is_absolute()
 
-    # if absolute path do that first
-    if isabs:
+    if isabs: # check absolute path first
         if temppath.exists():
             return temppath
         else:
             bottomtype(f"Error: Could not resolve absolute path {temppath}")
-
+    else: # check relative path 
+        local = expand_path(tempstr)
+        if local.exists():
+            return local
+    
     # look through TEMPDIRS
     dmatches: list[Path] = []
     fmatches: list[Path] = []
