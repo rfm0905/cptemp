@@ -4,7 +4,7 @@ I was bored and did way tm just cause I was too lazy to copy my homework templat
 
 The default and tempdirs are hard-coded, if someone acc uses this make it use environment variables yourself. Note this will overwrite the exiting files / directory in the targets, but it also autocreates them if they don't exist. Defaults to cwd if no target is specified. Use `-a` if you want to copy contents direclty, without renaming to the target name.  
 
-<img width="752" height="442" alt="Screenshot 2026-02-16 at 7 33 19 PM" src="https://github.com/user-attachments/assets/6f8de2ec-d503-45b0-92d7-ab927f6a7c54" />
+<img width="1269" height="319" alt="image" src="https://github.com/user-attachments/assets/3ad8bccb-a300-4914-a1e6-4e231f016c03" />
 
 <br/>
 <br/>
