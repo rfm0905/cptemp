@@ -40,7 +40,7 @@ def looks_like_path(s: str) -> bool:
     return ("/" in s) or ("\\" in s)
 
 
-def pretty_path(path: Path) -> str:
+def pretty_path(path: Path, color: NORD = NORD.FILE) -> str:
     """Pretty prints paths. Uses last 2 parts (i.e 'foo/bar/abc' becomes 'bar/abc')"""
     path = path.expanduser().resolve()
     try:
@@ -51,7 +51,7 @@ def pretty_path(path: Path) -> str:
     except ValueError:
         parts = path.parts[-2:]
 
-    return f"{NORD.FILE}{Path(*parts)}{NORD.RESET}"
+    return f"{color}{Path(*parts)}{NORD.RESET}"
 
 
 def find_tempfile(searchdir: Path) -> Path:
@@ -72,11 +72,11 @@ def find_tempfile(searchdir: Path) -> Path:
 
 def search_tempdir(tempstr: str, tempdir: Path) -> tuple[list[Path], list[Path]]:
     """
-    Search a template directory for the given name or path, returning directory matches and file matches
+    Searches a template directory for given name or path, returning directory and file matches
     """
     if not tempdir.exists():
         eprint(
-            f"Warning: Template directory {pretty_path(tempdir)} does not exist, skipping search to next directory"
+            f"Warning: Template directory {pretty_path(tempdir, color=NORD.ACCENT)}{NORD.WARNING} does not exist, skipping search to next template directory"
         )
         return [], []
 
@@ -120,14 +120,14 @@ def resolve_template(tempstr: str) -> Path:
         bottomtype("Specify exact template with -t flag next time")
     elif fmatches:
         return fmatches[0]
-    bottomtype(f"Error: Unable to resolve template file {tempstr} or directory")
+    bottomtype(f"Error: Unable to resolve template directory \"{NORD.ACCENT}{tempstr}{NORD.ERROR}\" or file")
 
 
 def copy_rename(temploc: Path, targets: list[Path]) -> None:
     """
     Copies template file into each target.
-    If target is a directory, renames template to match the directory name.
-    Overwrites existing files
+    If target is a directory, renames template file to match the directory name.
+    Overwrites existing files on conflict
     """
     temppath = find_tempfile(temploc) if temploc.is_dir() else temploc
     for target in targets:
@@ -143,7 +143,7 @@ def copy_rename(temploc: Path, targets: list[Path]) -> None:
             base_name = target.name or target.parent.name or temppath.stem
             dest = target / f"{base_name}{ext}"
             shutil.copy2(temppath, dest)
-            print(f"{NORD.ACCENT}Copied {pretty_path(temppath)} to {pretty_path(dest)}")
+            print(f"{NORD.ACCENT}Copied {pretty_path(temppath)}{NORD.ACCENT} to {pretty_path(dest)}")
 
 
 def copy_norename(temppath: Path, targets: list[Path]) -> None:
@@ -156,13 +156,13 @@ def copy_norename(temppath: Path, targets: list[Path]) -> None:
 
     if not temppath.exists():
         bottomtype(
-            f"Error: Could not resolve template path {temppath} to existing file or directory"
+            f"Error: Could not resolve template path {NORD.ACCENT}{temppath}{NORD.ERROR} to existing file or directory"
         )
 
     for target in targets:
         if target.exists() and target.is_file():
             eprint(
-                f"Error: -a requires a directory target, found file {target}. Skipping to next target"
+                f"Error: -a requires a directory target, found file {NORD.ACCENT}{target}{NORD.ERROR}. Skipping to next target"
             )
             continue
 
@@ -182,7 +182,7 @@ def copy_norename(temppath: Path, targets: list[Path]) -> None:
             )
         else:
             bottomtype(
-                f"Error: Could not resolve template path {temppath} to existing file or directory"
+                f"Error: Could not resolve template path {NORD.ACCENT}{temppath}{NORD.ERROR} to existing file or directory"
             )
 
 
@@ -191,7 +191,7 @@ def list_fzf_candidates() -> list[Path]:
     out: list[Path] = []
     for tempdir in TEMPDIRS:
         if not tempdir.exists():
-            eprint(f"Warning: Template directory {pretty_path(tempdir)} does not exist")
+            eprint(f"Warning: Template directory {pretty_path(tempdir, color=NORD.ACCENT)}{NORD.WARNING} does not exist")
             continue
         out.extend(p for p in tempdir.iterdir())
     return out
@@ -266,7 +266,7 @@ def main() -> None:
         for target in targets:
             if temppath == target or temppath in target.parents:
                 bottomtype(
-                    f"Error: Target {target} is inside template directory {temppath}. Refusing to copy"
+                    f"Error: Target {NORD.ACCENT}{target}{NORD.ERROR} is inside template directory {NORD.ACCENT}{temppath}{NORD.ERROR}. Refusing to copy"
                 )
 
     copy_norename(temppath, targets) if args.as_is else copy_rename(temppath, targets)
