@@ -40,7 +40,7 @@ def looks_like_path(s: str) -> bool:
     return ("/" in s) or ("\\" in s)
 
 
-def pretty_path(path: Path) -> str:
+def pretty_path(path: Path, color: NORD = NORD.FILE) -> str:
     """Pretty prints paths. Uses last 2 parts (i.e 'foo/bar/abc' becomes 'bar/abc')"""
     path = path.expanduser().resolve()
     try:
@@ -51,7 +51,7 @@ def pretty_path(path: Path) -> str:
     except ValueError:
         parts = path.parts[-2:]
 
-    return f"{NORD.FILE}{Path(*parts)}{NORD.RESET}"
+    return f"{color}{Path(*parts)}{NORD.RESET}"
 
 
 def find_tempfile(searchdir: Path) -> Path:
@@ -76,7 +76,7 @@ def search_tempdir(tempstr: str, tempdir: Path) -> tuple[list[Path], list[Path]]
     """
     if not tempdir.exists():
         eprint(
-            f"Warning: Template directory {pretty_path(tempdir)}{NORD.WARNING} does not exist, skipping search to next template directory"
+            f"Warning: Template directory {pretty_path(tempdir, color=NORD.ACCENT)}{NORD.WARNING} does not exist, skipping search to next template directory"
         )
         return [], []
 
@@ -191,7 +191,7 @@ def list_fzf_candidates() -> list[Path]:
     out: list[Path] = []
     for tempdir in TEMPDIRS:
         if not tempdir.exists():
-            eprint(f"Warning: Template directory {pretty_path(tempdir)}{NORD.WARNING} does not exist")
+            eprint(f"Warning: Template directory {pretty_path(tempdir, color=NORD.ACCENT)}{NORD.WARNING} does not exist")
             continue
         out.extend(p for p in tempdir.iterdir())
     return out
